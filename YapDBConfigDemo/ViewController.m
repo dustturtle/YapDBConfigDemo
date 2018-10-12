@@ -22,7 +22,15 @@
     
     BOOL flag = GFQConfig.isAdult;
     
-    //GFQConfig.isAdult = YES;
+    NSInteger time = GFQConfig.timeInterval;
+    
+    NSInteger num = GFQConfig.magicNum;
+    
+    double testD = GFQConfig.testDouble;
+    
+    GFQConfig.magicNum = 33;
+    
+    GFQConfig.testDouble = 33.3;
     
     //GFQConfig.timeInterval = @"36";
     NSString *timeStr = GFQConfig.screenAlwaysOn;

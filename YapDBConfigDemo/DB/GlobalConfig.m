@@ -24,9 +24,15 @@
 
 enum TypeEncodings {
     Bool                = 'B',
-    Int                 = 'i',
     Double              = 'd',
-    Object              = '@'
+    Object              = '@',
+    Short               = 's',
+    Int                 = 'i',
+    Long                = 'l',
+    LongLong            = 'q',
+    UnsignedInt         = 'I',
+    UnsignedLong        = 'L',
+    UnsignedLongLong    = 'Q',
 };
 
 static bool boolGetter(GlobalConfig *self, SEL _cmd) {
@@ -62,6 +68,80 @@ static void boolSetter(GlobalConfig *self, SEL _cmd, bool value) {
     [GYapDBManager.readwriteConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction)
      {
          [transaction setObject:[NSNumber numberWithBool:value] forKey:key inCollection:@"GlobalConfig"];
+     }];
+}
+
+static double doubleGetter(GlobalConfig *self, SEL _cmd) {
+    __block id doubleObj;
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    
+    [GYapDBManager.readonlyConnection readWithBlock:^(YapDatabaseReadTransaction *transaction)
+     {
+         doubleObj = [transaction objectForKey:key inCollection:@"GlobalConfig"];
+     }];
+    
+    if (doubleObj)
+    {
+        return [doubleObj doubleValue];
+    }
+    else
+    {
+        if (self.configDefaults[key])
+        {
+            return [self.configDefaults[key] doubleValue];
+        }
+        else
+        {
+            // final double default is 0.0
+            return 0.0;
+        }
+    }
+}
+
+static void doubleSetter(GlobalConfig *self, SEL _cmd, double value) {
+    // may set nil object to remove object for key from db.
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    [GYapDBManager.readwriteConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction)
+     {
+         [transaction setObject:[NSNumber numberWithDouble:value] forKey:key inCollection:@"GlobalConfig"];
+     }];
+}
+
+static long long longLongGetter(GlobalConfig *self, SEL _cmd) {
+    __block id longlongObj;
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    
+    [GYapDBManager.readonlyConnection readWithBlock:^(YapDatabaseReadTransaction *transaction)
+     {
+         longlongObj = [transaction objectForKey:key inCollection:@"GlobalConfig"];
+     }];
+    
+    if (longlongObj)
+    {
+        return [longlongObj longLongValue];
+    }
+    else
+    {
+        if (self.configDefaults[key])
+        {
+            NSNumber *number = self.configDefaults[key];
+            long long rawValue = [number longLongValue];
+            return rawValue;
+        }
+        else
+        {
+            // final longlong default is 0
+            return 0;
+        }
+    }
+}
+
+static void longLongSetter(GlobalConfig *self, SEL _cmd, long long value) {
+    // may set nil object to remove object for key from db.
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    [GYapDBManager.readwriteConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction)
+     {
+         [transaction setObject:[NSNumber numberWithLongLong:value] forKey:key inCollection:@"GlobalConfig"];
      }];
 }
 
@@ -185,16 +265,25 @@ static void objectSetter(GlobalConfig *self, SEL _cmd, id object)
         IMP setterImp = (IMP)objectSetter;
         
         char type = attributes[1];
+        // 注意：这里使用longlong统一处理整型相关的问题，不考虑溢出（简单化处理）。
         switch (type) {
             case Int:
-//                getterImp = (IMP)longLongGetter;
-//                setterImp = (IMP)longLongSetter;
+            case Short:
+            case Long:
+            case LongLong:
+            case UnsignedInt:
+            case UnsignedLong:
+            case UnsignedLongLong:
+                getterImp = (IMP)longLongGetter;
+                setterImp = (IMP)longLongSetter;
                 break;
             case Bool:
                 getterImp = (IMP)boolGetter;
                 setterImp = (IMP)boolSetter;
                 break;
             case Double:
+                getterImp = (IMP)doubleGetter;
+                setterImp = (IMP)doubleSetter;
                 break;
             case Object:
                 getterImp = (IMP)objectGetter;

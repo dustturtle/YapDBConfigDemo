@@ -21,6 +21,8 @@
 @dynamic timeoutSecs;
 
 @dynamic isAdult;
+@dynamic magicNum;
+@dynamic testDouble;
 
 // Category need to implement this method to setup default values.
 - (NSDictionary *)setupDefaults
@@ -29,8 +31,10 @@
              @"silenceMode":@"0",
              @"screenAlwaysOn":@"320",
              @"strictModeOn":@"0",
-             @"timeInterval":@"25",
+             @"timeInterval":@(18),
              @"isAdult": @(NO),
+             @"magicNum":@(88),
+             @"testDouble":@(66.66666),
              };
 }
 

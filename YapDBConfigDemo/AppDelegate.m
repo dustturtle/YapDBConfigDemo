@@ -21,7 +21,8 @@
     // Override point for customization after application launch.
     [GYapDBManager setupDatabase];
     
-    GFQConfig.timeInterval = @"36";
+    //GFQConfig.timeInterval = @"36";
+    
     GFQConfig.strictModeOn = @"1";
     GFQConfig.dicInfo = [@{@"test":@"666"} mutableCopy];
     
