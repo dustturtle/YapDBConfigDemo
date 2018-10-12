@@ -20,12 +20,17 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    BOOL flag = GFQConfig.isAdult;
+    
+    //GFQConfig.isAdult = YES;
+    
     //GFQConfig.timeInterval = @"36";
-    NSString *timeStr = GFQConfig.timeInterval;
+    NSString *timeStr = GFQConfig.screenAlwaysOn;
     NSLog(@"test,timeInterval:%@", timeStr);
     
     NSMutableDictionary *dic = GFQConfig.dicInfo;
     NSLog(@"test,dicInfo:%@", dic);
+    
 }
 
 

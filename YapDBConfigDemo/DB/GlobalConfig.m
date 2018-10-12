@@ -22,6 +22,49 @@
 
 @implementation GlobalConfig
 
+enum TypeEncodings {
+    Bool                = 'B',
+    Int                 = 'i',
+    Double              = 'd',
+    Object              = '@'
+};
+
+static bool boolGetter(GlobalConfig *self, SEL _cmd) {
+    __block id boolObj;
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    
+    [GYapDBManager.readonlyConnection readWithBlock:^(YapDatabaseReadTransaction *transaction)
+     {
+         boolObj = [transaction objectForKey:key inCollection:@"GlobalConfig"];
+     }];
+    
+    if (boolObj)
+    {
+        return [boolObj boolValue];
+    }
+    else
+    {
+        if (self.configDefaults[key])
+        {
+            return [self.configDefaults[key] boolValue];
+        }
+        else
+        {
+            // final bool default is NO
+            return NO;
+        }
+    }
+}
+
+static void boolSetter(GlobalConfig *self, SEL _cmd, bool value) {
+    // may set nil object to remove object for key from db.
+    NSString *key = [self defaultsKeyForSelector:_cmd];
+    [GYapDBManager.readwriteConnection readWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction)
+     {
+         [transaction setObject:[NSNumber numberWithBool:value] forKey:key inCollection:@"GlobalConfig"];
+     }];
+}
+
 #pragma - mark Singlton Method
 
 + (instancetype)sharedInstance
@@ -123,6 +166,7 @@ static void objectSetter(GlobalConfig *self, SEL _cmd, id object)
     {
         objc_property_t property = properties[i];
         const char *name = property_getName(property);
+        const char *attributes = property_getAttributes(property);
 
         char *getter = strdup(name);
         SEL getterSel = sel_registerName(getter);
@@ -139,6 +183,24 @@ static void objectSetter(GlobalConfig *self, SEL _cmd, id object)
         
         IMP getterImp = (IMP)objectGetter;
         IMP setterImp = (IMP)objectSetter;
+        
+        char type = attributes[1];
+        switch (type) {
+            case Int:
+//                getterImp = (IMP)longLongGetter;
+//                setterImp = (IMP)longLongSetter;
+                break;
+            case Bool:
+                getterImp = (IMP)boolGetter;
+                setterImp = (IMP)boolSetter;
+                break;
+            case Double:
+                break;
+            case Object:
+                getterImp = (IMP)objectGetter;
+                setterImp = (IMP)objectSetter;
+                break;
+        }
     
         char types[5];
         

@@ -24,6 +24,10 @@
 // 保存默认的番茄钟长度，格式：30 (用字符串表示的数字,单位为分钟)
 @property (nonatomic, copy) NSString *timeInterval;
 
+@property (nonatomic, assign) NSInteger timeoutSecs;
+
+@property (nonatomic, assign) BOOL isAdult;
+
 // Yap天生就支持对象类型
 @property (nonatomic) NSMutableDictionary *dicInfo;
 

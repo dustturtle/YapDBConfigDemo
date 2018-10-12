@@ -18,14 +18,19 @@
 @dynamic silenceMode;
 @dynamic timeInterval;
 
+@dynamic timeoutSecs;
+
+@dynamic isAdult;
+
 // Category need to implement this method to setup default values.
 - (NSDictionary *)setupDefaults
 {
     return @{
              @"silenceMode":@"0",
-             @"screenAlwaysOn":@"0",
+             @"screenAlwaysOn":@"320",
              @"strictModeOn":@"0",
-             @"timeInterval":@"25"
+             @"timeInterval":@"25",
+             @"isAdult": @(NO),
              };
 }
 
